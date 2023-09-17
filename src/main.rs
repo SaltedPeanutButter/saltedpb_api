@@ -12,7 +12,11 @@ async fn main() {
         }));
 
     // Run app
-    Server::bind(&"0.0.0.0:3000".parse().unwrap())
+    let port = std::env::var("PORT")
+        .unwrap_or("3000".into());
+    let addr = format!("0.0.0.0:{port}");
+    
+    Server::bind(&addr.parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();
