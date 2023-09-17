@@ -6,14 +6,15 @@ WORKDIR /saltedpb-me-api
 # Copy over manifests and build
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
-RUN cargo build --release 
-RUN rm src/*.rs target/release/deps/saltedpb_me_api*
+RUN rustup target add x86_64-unknown-linux-musl
+RUN cargo build --release --target=x86_64-unknown-linux-musl
+RUN rm src/*.rs target/x86_64-unknown-linux-musl/release/deps/saltedpb_me_api*
 
 # Copy over source and build
 COPY ./src ./src
-RUN cargo build --release
+RUN cargo build --release --target=x86_64-unknown-linux-musl
 
 # Stage 1: Deploy
-FROM rust:latest as deployment
-COPY --from=builder /saltedpb-me-api/target/release/saltedpb-me-api .
+FROM scratch as deployment
+COPY --from=builder /saltedpb-me-api/target/x86_64-unknown-linux-musl/release/saltedpb-me-api .
 CMD ["./saltedpb-me-api"]
